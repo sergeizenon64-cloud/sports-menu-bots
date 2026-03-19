@@ -1,7 +1,9 @@
+import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
-TOKEN = "8747180981:AAHIHjtlWtyZohlZaRhekLQrpVlbwZa19VQ"
+# Берём токен из Railway (или можно оставить строкой)
+TOKEN = os.getenv("TOKEN")  # либо вставь сюда токен строкой
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -18,6 +20,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "🏆 Спортивное меню",
         reply_markup=reply_markup
     )
+
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -38,11 +41,21 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await query.edit_message_text(text)
 
-app = ApplicationBuilder().token(TOKEN).build()
 
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CallbackQueryHandler(button))
+async def main():
+    app = ApplicationBuilder().token(TOKEN).build()
 
-print("MENU BOT ЗАПУЩЕН")
+    # 🔥 УБИРАЕМ КОНФЛИКТ
+    await app.bot.delete_webhook(drop_pending_updates=True)
 
-app.run_polling()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CallbackQueryHandler(button))
+
+    print("MENU BOT ЗАПУЩЕН")
+
+    await app.run_polling()
+
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
