@@ -1,1 +1,1 @@
-worker: python menu_bot.py
+worker: worker: python menu_bot.py
