@@ -2,11 +2,10 @@ import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
-# Берём токен из Railway (или можно оставить строкой)
-TOKEN = os.getenv("TOKEN")  # либо вставь сюда токен строкой
+# Токен берётся из Railway (переменная TOKEN)
+TOKEN = os.getenv("TOKEN")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     keyboard = [
         [InlineKeyboardButton("⚽ Футбол", callback_data="football")],
         [InlineKeyboardButton("🏒 Хоккей", callback_data="hockey")],
@@ -23,39 +22,32 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     query = update.callback_query
     await query.answer()
 
     if query.data == "football":
         text = "⚽ Последние футбольные результаты"
-
     elif query.data == "hockey":
         text = "🏒 Последние хоккейные результаты"
-
     elif query.data == "basketball":
         text = "🏀 Последние результаты баскетбола"
-
     elif query.data == "today":
         text = "📅 Матчи сегодня"
 
     await query.edit_message_text(text)
 
 
-async def main():
-    app = ApplicationBuilder().token(TOKEN).build()
+# Создаём приложение
+app = ApplicationBuilder().token(TOKEN).build()
 
-    # 🔥 УБИРАЕМ КОНФЛИКТ
-    await app.bot.delete_webhook(drop_pending_updates=True)
+# 🔥 УБИРАЕМ КОНФЛИКТ (ОЧЕНЬ ВАЖНО)
+app.bot.delete_webhook(drop_pending_updates=True)
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(button))
+# Хендлеры
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CallbackQueryHandler(button))
 
-    print("MENU BOT ЗАПУЩЕН")
+print("MENU BOT ЗАПУЩЕН")
 
-    await app.run_polling()
-
-
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+# Запуск
+app.run_polling()
